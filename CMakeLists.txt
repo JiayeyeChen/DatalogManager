@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(Multi-Functional_Embedded_Center)
+project(Datalog_Manager)
 
 find_package(Boost REQUIRED COMPONENTS system thread regex)
 
@@ -10,14 +10,13 @@ include_directories(
 
 set(SRC
   main.cpp
-  mfec_communication.cpp
+  datalog.cpp
   crc32_mpeg.cpp
-  ak10_9_calibration.cpp
 )
 
 set(LIBS
   ${Boost_LIBRARIES}
 )
 
-add_executable(MFEC ${SRC})
-target_link_libraries(MFEC ${LIBS})
+add_executable(datalog ${SRC})
+target_link_libraries(datalog ${LIBS})
