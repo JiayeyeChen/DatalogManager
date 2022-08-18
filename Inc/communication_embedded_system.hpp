@@ -1,9 +1,12 @@
-#ifndef DATALOG_HPP
-#define DATALOG_HPP
+#ifndef COMMUNICATION_EMBEDDED_SYSTEM_HPP
+#define COMMUNICATION_EMBEDDED_SYSTEM_HPP
+
 #include <boost/asio.hpp>
+#include "crc32_mpeg.hpp"
 #include <iostream>
 #include <string>
 #include <fstream>
+#include "main.hpp"
 
 enum DataLogTask
 {
@@ -15,18 +18,12 @@ enum DataLogTask
     DATALOG_TASK_END
 };
 
-union FloatUInt8
-{
-    float   f;
-    uint8_t b8[4];
-};
-
-class DataLogUSB
+class USBCommunicationHandle
 {
     public:
             boost::asio::io_service io;
             boost::asio::serial_port serialPort;
-            DataLogUSB(std::string device_repo, int baudrate);
+            USBCommunicationHandle(std::string device_repo, int baudrate, std::string file_name);
             void ReceiveCargo(void);
             /*Rx message*/
             uint8_t ifNewMessage;
@@ -38,17 +35,23 @@ class DataLogUSB
             /*Tx message*/
             void TransmitCargo(uint8_t *data, uint8_t len);
             void SendText(std::string text);
-            void StartDataLog(std::string filename);
             /*Datalog control*/
             enum DataLogTask curDatalogTask;
             void DataLogManager(void);
             uint8_t dataSlotLen;
             uint8_t dataSlotLabellingCount;
+            uint8_t ifDatalogStarted;
             std::ofstream fileStream;
+            std::string curDatalogFilename;
+            void StartDataLogActive(std::string filename);
+            void StartDataLogPassive(std::string filename);
+            bool ifNewMsgIsThisString(std::string str);
+            std::string fileName;
             /*Received MCU Values*/
             uint32_t    systemTime, index;
     private:
 
 };
+
 
 #endif

@@ -1,22 +1,22 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(Datalog_Manager)
+project(DatalogManager)
 
 find_package(Boost REQUIRED COMPONENTS system thread regex)
 
 include_directories(
-  Inc
-  ${Boost_INCLUDE_DIR}
+    Inc
+    ${Boost_INCLUDE_DIR}
 )
 
 set(SRC
-  main.cpp
-  datalog.cpp
-  crc32_mpeg.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/Src/main.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/Src/crc32_mpeg.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/Src/communication_embedded_system.cpp
 )
 
 set(LIBS
-  ${Boost_LIBRARIES}
+    ${Boost_LIBRARIES}
 )
 
-add_executable(datalog ${SRC})
-target_link_libraries(datalog ${LIBS})
+add_executable(DatalogManager ${SRC})
+target_link_libraries(DatalogManager ${LIBS})
