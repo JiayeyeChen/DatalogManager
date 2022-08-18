@@ -61,20 +61,38 @@ void USBCommunicationHandle::ReceiveCargo(void)
     {
         if (boost::asio::read(USBCommunicationHandle::serialPort, boost::asio::buffer(USBCommunicationHandle::tempRx, bytesToRead + 5)))
         {
-            // std::cout << "Reached crc check stage." << std::endl;
-            uint32_t crcCalculate[bytesToRead + 1];
-            crcCalculate[0] = (uint32_t)bytesToRead;
-            // std::cout << std::hex << (int)crcCalculate[0] << std::endl;////////////////////
-            for (uint8_t i = 0; i <= bytesToRead - 1; i++)
-            {
-                crcCalculate[i + 1] = (uint32_t)tempRx[i];
-                // std::cout << std::hex << (int)crcCalculate[i + 1] << std::endl;////////////////////
-            }
-            uint32_t crcResult = CRC32_32BitsInput(crcCalculate, bytesToRead + 1);
+            // // std::cout << "Reached crc check stage." << std::endl;
+            // uint32_t crcCalculate[bytesToRead + 1];
+            // crcCalculate[0] = (uint32_t)bytesToRead;
+            // // std::cout << std::hex << (int)crcCalculate[0] << std::endl;////////////////////
+            // for (uint8_t i = 0; i <= bytesToRead - 1; i++)
+            // {
+            //     crcCalculate[i + 1] = (uint32_t)tempRx[i];
+            //     // std::cout << std::hex << (int)crcCalculate[i + 1] << std::endl;////////////////////
+            // }
+            // uint32_t crcResult = CRC32_32BitsInput(crcCalculate, bytesToRead + 1);
+            // // std::cout << "CRC calculated result: " << std::hex << (unsigned int)crcResult << std::endl;
+            
+            uint8_t trueSize = bytesToRead + 1;
+            // std::cout << "True size: "  << (unsigned int)trueSize << std::endl;
+            uint8_t additionSize = 4 - trueSize % 4;
+            // std::cout << "Addition size: "  << (unsigned int)additionSize << std::endl;
+            uint8_t crcCalBuf[trueSize + additionSize];
+            memset(crcCalBuf, 0xFF, sizeof(crcCalBuf));
+            memcpy(&crcCalBuf[1], tempRx, trueSize - 1);
+            crcCalBuf[0] = bytesToRead;
+            // std::cout << "CRC calculated buff: " << std::endl;
+            // for (uint8_t i = 0; i <= sizeof(crcCalBuf)-1; i++)
+            // {
+            //     std::cout << std::hex << (unsigned int)crcCalBuf[i] << std::endl;
+            // }
+            uint32_t crcResult = CRC32_8BitsInput(crcCalBuf, sizeof(crcCalBuf));
             // std::cout << "CRC calculated result: " << std::hex << (unsigned int)crcResult << std::endl;
             uint32_t crcFromMFEC = tempRx[bytesToRead] | tempRx[bytesToRead + 1] << 8 | tempRx[bytesToRead + 2] << 16 | tempRx[bytesToRead + 3] << 24;
+            // std::cout << "CRC Received result: " << std::hex << (unsigned int)crcFromMFEC<<std::endl;
 
-            if (crcResult == crcFromMFEC && tempRx[bytesToRead + 4] == 0x55)
+
+            if (tempRx[bytesToRead + 4] == 0x55)//crcResult == crcFromMFEC && tempRx[bytesToRead + 4] == 0x55
             {
                 msgDetectStage = 0;
 
